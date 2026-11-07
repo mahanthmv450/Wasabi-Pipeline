@@ -1,0 +1,6 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Checking in again to see if anything has changed this week. I'd still love to connect to see if there are ways we can help. Do you have 5 minutes to chat in the coming days?
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

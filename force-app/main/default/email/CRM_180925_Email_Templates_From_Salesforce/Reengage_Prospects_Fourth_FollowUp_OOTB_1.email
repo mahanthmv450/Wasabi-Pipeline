@@ -1,0 +1,1 @@
+Hi {{{Recipient.FirstName}}},<br /> <br /> I'm reaching out again to see if there's a good time to connect. As always, I can be reached at {{{Sender.Phone}}}.<br /> <br /> Do you have ten minutes to chat in the next few days?<br /> <br /> Take care,<br /> {{{Sender.FirstName}}}

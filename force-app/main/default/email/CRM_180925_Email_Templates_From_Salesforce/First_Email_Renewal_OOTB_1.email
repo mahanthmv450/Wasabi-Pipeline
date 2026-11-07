@@ -1,0 +1,10 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Thank you for being a part of our {{{Sender.CompanyName}}} community. Can you believe it's already time to discuss how we can continue our partnership in the future? We hope you’ve been enjoying our offerings.
+            <br><br>
+            I'm reaching out to get the conversation going. Let's find a good time to talk and discuss how our products are fitting your needs and how that might evolve as we approach renewal. Below are a few meeting options that work well on my end. You can select one that works for you. If none of them work, let me know and we can find another time.
+            <br><br>
+            [INSERT AVAILABLE TIMES]
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

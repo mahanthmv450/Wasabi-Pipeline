@@ -1,0 +1,8 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Since we haven't been able to connect, I figure this isn't the right time for us to discuss ways that {{{Sender.CompanyName}}} can help.
+            We can leave the conversation here, and if you find yourself wanting to discuss at a later time, I would be happy to chat when you're ready.
+            Feel free to reach me at {{{Sender.Phone}}}, and have a wonderful day.
+            <br><br>
+            Kind regards, <br>
+            {{{Sender.Signature}}}

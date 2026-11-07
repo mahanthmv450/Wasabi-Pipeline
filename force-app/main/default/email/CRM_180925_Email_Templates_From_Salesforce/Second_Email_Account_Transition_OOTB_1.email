@@ -1,0 +1,6 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Hope this email finds you well. I help support your account team here at {{{Sender.CompanyName}}} and would welcome the opportunity to introduce myself and understand how we may be able to partner together going forward. Do you have a few minutes to connect this week?
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

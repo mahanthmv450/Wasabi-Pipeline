@@ -1,0 +1,8 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            It's been a while since we last chatted, and I'm hoping to find some time to connect with you and your team to see how things are going. Are there any areas where we at {{{Sender.CompanyName}}} can help you?
+            <br><br>
+            Feel free to drop me a line or to reach me at {{{Sender.PhoneNumber}}}. I would love to get a meeting on the books to review your priorities.
+            <br><br>
+            Best regards, <br>
+            {{{Sender.FullName}}}

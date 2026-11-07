@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Follow up on meeting action items</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>Follow Up, Set Meeting</name>
+    <style>none</style>
+    <subject>Meeting Follow Up</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
+</EmailTemplate>

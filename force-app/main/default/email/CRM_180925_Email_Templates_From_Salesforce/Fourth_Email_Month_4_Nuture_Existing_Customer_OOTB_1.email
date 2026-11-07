@@ -1,0 +1,12 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            It's {{{Sender.FirstName}}} again at {{{Sender.CompanyName}}}.
+            <br><br>
+            Hoping to check in with you again this month to see how you're doing.
+            <br><br>
+            Would you be open to sharing any recent developments at {{{Recipient.CompanyName}}}? I'd love to give you an update on some recent news at {{{Sender.CompanyName}}}.
+            <br><br>
+            As always, thank you for being our customer.
+            <br><br>
+            Best regards, <br>
+            {{{Sender.FullName}}}

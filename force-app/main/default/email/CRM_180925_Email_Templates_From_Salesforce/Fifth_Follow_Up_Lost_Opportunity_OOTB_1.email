@@ -1,0 +1,10 @@
+Hi {{{Recipient.FirstName}}} ,
+            <br><br>
+            I hope you haven't minded my outreach attempts, but I would hate to miss an opportunity to work together.
+            <br><br>
+            I’ve been trying to get in touch with you regarding your previous interest. I haven’t had any luck, so I’m assuming that evaluating our solution(s) is not a priority for you or your team at this time.
+            <br><br>
+            If I’m incorrect in my assumption and you are still interested, feel free to reach out to me at {{{Sender.Phone}}}. Alternatively, if you had to delay the project but would still like for me to follow up please let me know when would get a good time to reach out again.
+            <br><br>
+            Thank you, <br>
+            {{{Sender.Signature}}}

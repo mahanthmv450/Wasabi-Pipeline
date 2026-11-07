@@ -1,0 +1,8 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            I'd love to put some time on the calendar to discuss your upcoming renewal. I promise we'll make it as simple as possible. Let's find some time to chat so that we're fully aligned.
+        `   <br><br>
+            [INSERT AVAILABLE TIMES]
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

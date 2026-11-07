@@ -1,0 +1,6 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Reaching out again to see if there's a good time to connect.  As always, I can be reached at {{{Sender.Phone}}}.
+            <br><br>
+            Take care, <br>
+            {{{Sender.Signature}}}

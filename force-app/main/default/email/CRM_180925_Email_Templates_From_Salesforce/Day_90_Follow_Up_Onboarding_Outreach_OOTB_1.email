@@ -1,0 +1,8 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Now that you've been a part of the {{{Sender.CompanyName}}} family for a while, I'd love to hear your feedback on how our products and services are impacting your organization. How can we make the customer experience even better for you?
+            <br><br>
+            I would love to get a meeting on the books. Is there a time that would work for you?
+            <br><br>
+            Best regards, <br>
+            {{{Sender.FullName}}}

@@ -1,0 +1,12 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            I know your team has a lot going on and I'd like to help you figure out the best way to maintain and grow our partnership.
+            <br><br>
+            As you gear up for the next year and think about what has changed in your business over the last 12 months, I'd love to hear how we can be helpful.
+            <br><br>
+            Let's find a good time to talk and discuss your current contract and what we can do to make things even better moving forward.
+            <br><br>
+            [INSERT AVAILABLE TIMES]
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

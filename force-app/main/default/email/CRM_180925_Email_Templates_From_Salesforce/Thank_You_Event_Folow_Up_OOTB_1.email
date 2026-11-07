@@ -1,0 +1,6 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            I'm reaching out to thank you for attending our recent {{{Sender.CompanyName}}} event. I hope you found it a valuable use of your time. I'm available to you as a resource for any follow up questions you may have or content you'd like to revisit. I look forward to connecting with you!
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

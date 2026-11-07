@@ -1,0 +1,8 @@
+Thank you for attending our event
+            <br><br>
+            Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Checking in quickly to see if you had any questions since my last message. Happy to connect if there are any topics you'd like to explore further.
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

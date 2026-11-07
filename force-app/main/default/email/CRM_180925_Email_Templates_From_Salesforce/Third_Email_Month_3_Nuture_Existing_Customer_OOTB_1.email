@@ -1,0 +1,8 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            It's your friendly business partner at {{{Sender.CompanyName}}} wanting to reach out again to learn more about any recent updates in your organization.
+            <br><br>
+            When would be a good moment for us to connect?
+            <br><br>
+            Best regards, <br>
+            {{{Sender.FullName}}}

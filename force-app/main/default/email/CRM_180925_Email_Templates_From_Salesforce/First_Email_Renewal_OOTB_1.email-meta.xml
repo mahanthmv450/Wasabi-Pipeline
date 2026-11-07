@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Start the process of guiding an existing customer through a renewal</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>First Email, Renewal</name>
+    <style>none</style>
+    <subject>Your renewal is right around the corner</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
+</EmailTemplate>

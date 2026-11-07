@@ -1,0 +1,8 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Following up to share some content from the event that has been popular with our attendees. Feel free to reach out if there is anything further you'd like to explore - I would be glad to answer any questions you may have.
+            <br><br>
+            [INSERT CONTENT]
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

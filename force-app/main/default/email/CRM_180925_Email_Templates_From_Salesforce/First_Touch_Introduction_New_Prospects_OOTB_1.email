@@ -1,0 +1,8 @@
+Hello {{{Recipient.FirstName}}},
+            <br><br>
+            My name is {{{Sender.FirstName}}} and I'm with {{{Sender.CompanyName}}}.  I wanted to see if you have 5 minutes to connect and discuss your [PRODUCT] needs?
+            <br><br>
+            I can be reached at {{{Sender.Phone}}} at your convenience.  I look forward to speaking with you!
+            <br><br>
+            Kind regards,<br>
+            {{{Sender.Signature}}}

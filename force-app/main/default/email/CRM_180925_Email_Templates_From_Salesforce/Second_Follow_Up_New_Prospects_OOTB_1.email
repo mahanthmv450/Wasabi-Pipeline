@@ -1,0 +1,6 @@
+Hello {{{Recipient.FirstName}}},
+            <br><br>
+            Just following up on my previous email to see if you'd be interested in connecting.  Feel free to give me a call at {{{Sender.Phone}}} any time.
+            <br><br>
+            Hope you are having a wonderful day, <br>
+            {{{Sender.Signature}}}

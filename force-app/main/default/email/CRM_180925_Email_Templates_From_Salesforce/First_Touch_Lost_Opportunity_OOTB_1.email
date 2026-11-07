@@ -1,0 +1,11 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            I want to thank you for your previous interest in {{{Sender.CompanyName}}}. We appreciate the time you've shared with us and would like to follow up on two fronts:
+            <br><br>
+            1. To understand how things might have changed since the last conversations between our companies <br>
+            2. To understand your strategic focus to determine if it's worth re-engaging
+            <br><br>
+            Are you available to chat for 5 min in the coming days?
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

@@ -1,0 +1,9 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            I wanted to follow up again and let you know how much we appreciate customers like you.
+            <br><br>
+            At {{{Sender.CompanyName}}}, our goal is to help you grow and succeed. We've found that discussing your priorities with your account team allows for us to do just that. Do you have time this week or next to connect?
+            <br><br>
+            Thank you in advance for your time and consideration,
+            <br><br>
+            {{{Sender.Signature}}}

@@ -1,0 +1,12 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            I wanted to reach out one more time to welcome you to the  {{{Sender.CompanyName}}} family, and to see if we can set up some time to talk with you about the onboarding process.
+            <br><br>
+            If you are not the correct person I should be reaching out to, could you let me know or forward this to the right person?
+            <br><br>
+            Below is my availability over the next week or so. Please select a time that works well for you.
+            <br><br>
+            [INSERT AVAILABLE TIMES]
+        `   <br><br>
+            All the best, <br>
+            {{{Sender.Signature}}}

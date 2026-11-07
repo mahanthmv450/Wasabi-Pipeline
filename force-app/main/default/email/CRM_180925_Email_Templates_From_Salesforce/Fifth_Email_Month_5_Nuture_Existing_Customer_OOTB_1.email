@@ -1,0 +1,8 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Are you interested in doing a business review this month? I'd love to hear your feedback on how our products and services are impacting your organization, and to explore how we can make the customer experience even better for you.
+            <br><br>
+            I would love to get a meeting on the books. Is there a time that would work for you?
+            <br><br>
+            Best regards, <br>
+            {{{Sender.FirstName}}}

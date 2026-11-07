@@ -1,0 +1,13 @@
+?
+            Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Welcome to the {{{Sender.CompanyName}}} family! We are glad you have chosen to partner with us!
+            <br><br>
+            We want to make sure you are fully supported as you begin working with {{{Sender.CompanyName}}}. To that end, I would like to set up some time to talk with you about the onboarding process for [PRODUCT].
+            <br><br>
+            Below is my availability over the next week or so. Please select a time that works well for you!
+            <br><br>
+            [INSERT AVAILABLE TIMES]
+            <br><br>
+            All the best, <br>
+            {{{Sender.Signature}}}

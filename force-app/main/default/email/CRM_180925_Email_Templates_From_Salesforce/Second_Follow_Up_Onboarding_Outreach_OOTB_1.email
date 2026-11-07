@@ -1,0 +1,10 @@
+Hi again {{{Recipient.FirstName}}},
+            <br><br>
+            I'm just following up on the email I sent a couple of days ago to get this back on your radar. We want to make sure you are fully supported as {{{Sender.CompanyName}}} gets up to speed with [PRODUCT].
+            <br><br>
+            Below is my revised availability over the next week or so. Please select a time that works well for you!
+            <br><br>
+            [INSERT AVAILABLE TIMES]
+            <br><br>
+            All the best, <br>
+            {{{Sender.Signature}}}

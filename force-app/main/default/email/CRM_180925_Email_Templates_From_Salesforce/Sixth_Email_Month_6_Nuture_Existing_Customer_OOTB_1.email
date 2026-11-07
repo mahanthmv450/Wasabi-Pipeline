@@ -1,0 +1,8 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            It's been a few months since you began using our products and services, and I'd love to do a health check to review your current objectives and make sure we are in line with your goals.
+            <br><br>
+            If you're available, when would be a good time to meet? I look forward to connecting with you.
+            <br><br>
+            Best regards, <br>
+            {{{Sender.FirstName}}}

@@ -1,0 +1,8 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Following up on my last email. Other customers have saved time by quickly discussing their priorities with us, so we can connect them with the right resources.
+            <br><br>
+            What time works for ten minutes today? If you are not the right person, can you point me in the right direction?
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

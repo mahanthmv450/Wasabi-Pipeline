@@ -1,0 +1,8 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Just confirming our meeting on [INSERT MEETING DATE AND TIME]. Please reach out if you have any questions beforehand. I look forward to speaking with you!
+            <br><br>
+            [INSERT OPTIONAL AGENDA]
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

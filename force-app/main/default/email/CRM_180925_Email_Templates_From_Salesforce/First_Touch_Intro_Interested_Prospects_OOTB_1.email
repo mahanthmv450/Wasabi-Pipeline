@@ -1,0 +1,10 @@
+Hello {{{Recipient.FirstName}}},
+            <br><br>
+            Your information came across my desk as someone who had been researching solutions that {{{Sender.CompanyName}}} can help with.
+            <br><br>
+            Typically when someone checks out our resources, it is because they are doing research. However, others find us by searching for an answer to a problem or question. Either way our customers have found it helpful to connect for ten minutes to discuss their current priorities so that we can point them in the right direction.
+            <br><br>
+            What’s the best time to connect for fifteen minutes today?
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

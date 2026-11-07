@@ -1,0 +1,10 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            I wanted to thank you once again for being a part of our event last week. We appreciate you taking time out of your busy schedule to learn more about us, and we'd love to keep the conversation going. Here are the details for our next event:
+            <br><br>
+            [INSERT EVENT DETAILS]
+            <br><br>
+            We hope you can make it! In the meantime, feel free to reach out with any questions or if you'd like to dive deeper.
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

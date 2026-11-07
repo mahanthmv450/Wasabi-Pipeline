@@ -1,0 +1,6 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Wanted to see if you had a chance to review my last email? Would love to connect over some of your previous interest if it is still top of mind. Let me know the best way to get 15 minutes on your calendar.
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

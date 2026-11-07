@@ -1,0 +1,6 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Thank you for taking the time to meet with me. I enjoyed speaking with you and hope you found the time valuable. Happy to answer any follow up questions you may have or share resources further resources at this point. Please don't hesitate to reach out, and I look forward to our next touch point.
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

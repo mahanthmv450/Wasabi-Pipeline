@@ -1,0 +1,8 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Briefly following up on a few voicemails I've left your way.
+            <br><br>
+            Understanding that you're busy, when is the best time to catch you for a quick chat? If you are not the right point of contact, could you point me in the right direction?
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

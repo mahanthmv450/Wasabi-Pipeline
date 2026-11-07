@@ -1,0 +1,8 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Hope all is well! I wanted to send a quick email to check in and see how you're doing.
+            <br><br>
+            Feel free to reach out to me at {{{Sender.PhoneNumber}}} or via email if you'd like to sync up.
+            <br><br>
+            Best regards, <br>
+            {{{Sender.FullName}}}

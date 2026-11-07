@@ -1,0 +1,10 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            I'm reaching out one last time regarding your renewal. It's important that we find a good time to talk so that we can get your contract wrapped up for this coming year.
+            <br><br>
+            Let's find a good time to discuss.
+            <br><br>
+            [INSERT AVAILABLE TIMES]
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

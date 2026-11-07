@@ -1,0 +1,8 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            Please excuse my persistence in confirming that you still have interest in learning more about {{{Sender.CompanyName}}}. Any update is appreciated in order to ensure that our level of support equals your level of interest.
+            <br><br>
+            I look forward to speaking with you.
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

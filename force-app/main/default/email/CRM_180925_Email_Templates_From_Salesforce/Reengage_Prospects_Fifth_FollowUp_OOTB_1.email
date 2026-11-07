@@ -1,0 +1,1 @@
+Hi {{{Recipient.FirstName}}},<br /> <br /> I’ve reached out a few times to see if it makes sense to connect. Since I haven’t heard back, I’ll assume the timing isn’t right.<br /> <br /> If in the future if you would like to discuss, feel free to reach out via email or give me a call at {{{Sender.Phone}}}.<br /> <br /> Best,<br /> {{{Sender.FirstName}}}

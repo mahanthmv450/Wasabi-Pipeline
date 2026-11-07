@@ -1,0 +1,10 @@
+Hi {{{Recipient.FirstName}}},
+            <br><br>
+            I appreciate your taking the time to connect and explore how {{{Sender.CompanyName}}} might be of service to your and your team. I look forward to continuing our conversation with a meeting. Please find below a list of available times.
+            <br><br>
+            Once you select a time slot, you'll receive a meeting invite from me. If there are no suitable times, please reply and we'll find another time that works.
+            <br><br>
+            [INSERT AVAILABLE TIMES]
+            <br><br>
+            Best, <br>
+            {{{Sender.Signature}}}

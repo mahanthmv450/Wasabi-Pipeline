@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Folow up with an existing customer to introduce yourself</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>Second Email, Account Transition</name>
+    <style>none</style>
+    <subject>{{{Sender.CompanyName}}} Introductory Meeting</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
+</EmailTemplate>
