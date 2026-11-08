@@ -59,8 +59,7 @@ public with sharing class AccountSizeService {
     }
 
     public class AccountSizeException extends Exception {}
-<<<<<<< HEAD
+
 }
-=======
-}
->>>>>>> f034f34 (test fix)
+
+

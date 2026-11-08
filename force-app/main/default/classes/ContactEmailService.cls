@@ -72,8 +72,5 @@ public with sharing class ContactEmailService {
     }
 
     public class ContactEmailException extends Exception {}
-<<<<<<< HEAD
+
 }
-=======
-}
->>>>>>> f034f34 (test fix)

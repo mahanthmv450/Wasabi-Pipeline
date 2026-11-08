@@ -87,8 +87,4 @@ private class ContactEmailServiceTest {
             Assert.isTrue(e.getMessage().contains('must not be empty'));
         }
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> f034f34 (test fix)
