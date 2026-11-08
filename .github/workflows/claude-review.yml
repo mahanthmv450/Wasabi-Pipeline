@@ -1,8 +1,9 @@
 # ================================================================
 # Claude Code Review
 #
-# Runs an automated Claude review on every pull request opened
-# from a feature/* branch into develop.
+# Runs an automated Claude review on pull requests from develop
+# into sit: when the PR is opened/reopened/marked ready, and on
+# every push to develop while that PR is open.
 #
 # REQUIRED SECRET:
 # CLAUDE_CODE_OAUTH_TOKEN  (Claude Pro/Max subscription;
@@ -13,8 +14,8 @@ name: Claude Code Review
 
 on:
   pull_request:
-    branches: [develop]
-    types: [opened, reopened, ready_for_review]
+    branches: [sit]
+    types: [opened, reopened, ready_for_review, synchronize]
 
 permissions:
   contents: read
@@ -27,9 +28,9 @@ concurrency:
 
 jobs:
   review:
-    # Only feature/* branches from this repo, and skip drafts
+    # Only develop -> sit PRs from this repo, and skip drafts
     if: >
-      startsWith(github.head_ref, 'feature/') &&
+      github.head_ref == 'develop' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.draft == false
     runs-on: ubuntu-latest
