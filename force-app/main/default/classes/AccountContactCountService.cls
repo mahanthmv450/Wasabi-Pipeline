@@ -8,9 +8,6 @@
  */
 public with sharing class AccountContactCountService {
 
-
-
-
     /**
      * Returns a map of Account Id -> number of related Contacts.
      */
