@@ -10,7 +10,7 @@ private class ContactEmailServiceTest {
         };
     }
 
-    @IsTest
+    @IsTest 
     static void normalize_coversAllBranches() {
         Assert.isNull(ContactEmailService.normalize(null));
         Assert.isNull(ContactEmailService.normalize('   '));
