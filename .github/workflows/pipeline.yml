@@ -1,0 +1,193 @@
+# ================================================================
+# Salesforce Delta Deployment Pipeline
+#
+# FLOW:
+# 1. Developer creates PR  → Validation runs automatically
+# 2. Validation passes     → Reviewer approves PR manually
+# 3. PR merged             → Actual deployment runs
+#                            (gated by the GitHub Environment of the
+#                             same name: add required reviewers to
+#                             UAT / PROD in Settings → Environments)
+#
+# BRANCH → ORG MAPPING:
+# develop → DEV Sandbox    (deploy: NoTestRun, validate: RunLocalTests)
+# sit     → SIT Sandbox    (RunLocalTests)
+# uat     → UAT Sandbox    (RunLocalTests)
+# master  → PRODUCTION     (RunLocalTests)
+#
+# REQUIRED SECRETS:
+# SALESFORCE_AUTH_URL_DEV / _SIT / _UAT / _PROD
+# ================================================================
+
+name: Salesforce Delta Pipeline
+
+on:
+  push:
+    branches: [develop, sit, uat, master]
+    paths:
+      - 'force-app/**'
+      - '.github/workflows/pipeline.yml'
+  pull_request:
+    branches: [develop, sit, uat, master]
+    paths:
+      - 'force-app/**'
+      - '.github/workflows/pipeline.yml'
+
+permissions:
+  contents: read
+
+env:
+  SF_CLI_VERSION: 2.157.8
+  SGD_VERSION: 6.45.1
+
+jobs:
+  # --------------------------------------------------------------
+  # Resolve target org from the branch (push) or base branch (PR)
+  # --------------------------------------------------------------
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.map.outputs.env_name }}
+      test_level: ${{ steps.map.outputs.test_level }}
+      validate_test_level: ${{ steps.map.outputs.validate_test_level }}
+    steps:
+      - name: Map branch to org
+        id: map
+        env:
+          TARGET_BRANCH: ${{ github.base_ref || github.ref_name }}
+        run: |
+          case "$TARGET_BRANCH" in
+            develop) ENV_NAME=DEV;  TEST_LEVEL=NoTestRun;     VALIDATE_TEST_LEVEL=RunLocalTests ;;
+            sit)     ENV_NAME=SIT;  TEST_LEVEL=RunLocalTests; VALIDATE_TEST_LEVEL=RunLocalTests ;;
+            uat)     ENV_NAME=UAT;  TEST_LEVEL=RunLocalTests; VALIDATE_TEST_LEVEL=RunLocalTests ;;
+            master)  ENV_NAME=PROD; TEST_LEVEL=RunLocalTests; VALIDATE_TEST_LEVEL=RunLocalTests ;;
+            *) echo "::error::No org mapped for branch '$TARGET_BRANCH'"; exit 1 ;;
+          esac
+          echo "env_name=$ENV_NAME"                       >> "$GITHUB_OUTPUT"
+          echo "test_level=$TEST_LEVEL"                   >> "$GITHUB_OUTPUT"
+          echo "validate_test_level=$VALIDATE_TEST_LEVEL" >> "$GITHUB_OUTPUT"
+          echo "Target: $TARGET_BRANCH → $ENV_NAME"
+
+  # --------------------------------------------------------------
+  # Validate (PR) or deploy (push) the delta
+  # --------------------------------------------------------------
+  deploy:
+    needs: setup
+    runs-on: ubuntu-latest
+    name: ${{ github.event_name == 'pull_request' && 'Validate' || 'Deploy' }} → ${{ needs.setup.outputs.env_name }}
+
+    # Approval gate only applies to real deployments, not PR validation
+    environment: ${{ github.event_name == 'push' && needs.setup.outputs.env_name || '' }}
+
+    # One deployment per org at a time, in order; never cancel a running deploy
+    concurrency:
+      group: sf-${{ needs.setup.outputs.env_name }}-${{ github.event_name }}
+      cancel-in-progress: false
+
+    env:
+      ENV_NAME: ${{ needs.setup.outputs.env_name }}
+      TEST_LEVEL: ${{ needs.setup.outputs.test_level }}
+      VALIDATE_TEST_LEVEL: ${{ needs.setup.outputs.validate_test_level }}
+
+    steps:
+      - name: Checkout Full Git History
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install Salesforce CLI
+        run: |
+          npm install --global "@salesforce/cli@${SF_CLI_VERSION}"
+          sf --version
+
+      - name: Install sfdx-git-delta
+        run: |
+          mkdir -p ~/.config/sf
+          echo '["sfdx-git-delta"]' > ~/.config/sf/unsignedPluginAllowList.json
+          sf plugins install "sfdx-git-delta@${SGD_VERSION}"
+          sf plugins
+
+      - name: Authenticate to Salesforce (${{ env.ENV_NAME }})
+        env:
+          AUTH_URL: ${{ secrets[format('SALESFORCE_AUTH_URL_{0}', needs.setup.outputs.env_name)] }}
+        run: |
+          if [ -z "$AUTH_URL" ]; then
+            echo "::error::Secret SALESFORCE_AUTH_URL_${ENV_NAME} is missing or empty"
+            exit 1
+          fi
+          echo "$AUTH_URL" | sf org login sfdx-url \
+            --alias target-org \
+            --sfdx-url-stdin
+
+      - name: Determine Delta Range
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          if [ "$EVENT_NAME" == "pull_request" ]; then
+            FROM_SHA="$PR_BASE_SHA"
+          else
+            FROM_SHA="$PUSH_BEFORE_SHA"
+          fi
+
+          # New branch (all-zero SHA) or force-push (old SHA no longer in history)
+          if [ -z "$FROM_SHA" ] || [ "$FROM_SHA" == "0000000000000000000000000000000000000000" ] || \
+             ! git cat-file -e "${FROM_SHA}^{commit}" 2>/dev/null; then
+            echo "::warning::Could not resolve previous commit ($FROM_SHA); falling back to HEAD~1"
+            FROM_SHA=$(git rev-parse HEAD~1)
+          fi
+
+          echo "FROM_SHA=$FROM_SHA" >> "$GITHUB_ENV"
+          echo "Delta range: $FROM_SHA → $(git rev-parse HEAD)"
+
+      - name: Generate Delta Package
+        run: |
+          mkdir -p delta
+          sf sgd source delta \
+            --from "$FROM_SHA" \
+            --to HEAD \
+            --output-dir delta \
+            --source-dir force-app \
+            --generate-delta
+
+          echo "====== Delta Components for $ENV_NAME ======"
+          cat delta/package/package.xml
+          echo "====== Destructive Changes for $ENV_NAME ======"
+          cat delta/destructiveChanges/destructiveChanges.xml
+
+          HAS_CHANGES=false
+          HAS_DESTRUCTIVE=false
+          grep -q '<members>' delta/package/package.xml && HAS_CHANGES=true
+          if [ -f delta/destructiveChanges/destructiveChanges.xml ] && \
+             grep -q '<members>' delta/destructiveChanges/destructiveChanges.xml; then
+            HAS_DESTRUCTIVE=true
+          fi
+          echo "HAS_CHANGES=$HAS_CHANGES"         >> "$GITHUB_ENV"
+          echo "HAS_DESTRUCTIVE=$HAS_DESTRUCTIVE" >> "$GITHUB_ENV"
+
+      - name: Build Deploy Arguments
+        run: |
+          ARGS="--manifest delta/package/package.xml --target-org target-org --wait 120"
+          if [ "$HAS_DESTRUCTIVE" == "true" ]; then
+            ARGS="$ARGS --post-destructive-changes delta/destructiveChanges/destructiveChanges.xml"
+          fi
+          echo "DEPLOY_ARGS=$ARGS" >> "$GITHUB_ENV"
+
+      - name: Validate Delta (${{ env.ENV_NAME }})
+        if: github.event_name == 'pull_request'
+        run: |
+          if [ "$HAS_CHANGES" == "true" ] || [ "$HAS_DESTRUCTIVE" == "true" ]; then
+            sf project deploy validate $DEPLOY_ARGS --test-level "$VALIDATE_TEST_LEVEL"
+          else
+            echo "No Salesforce metadata changes found. Skipping validation."
+          fi
+
+      - name: Deploy Delta to ${{ env.ENV_NAME }}
+        if: github.event_name == 'push'
+        run: |
+          if [ "$HAS_CHANGES" == "true" ] || [ "$HAS_DESTRUCTIVE" == "true" ]; then
+            sf project deploy start $DEPLOY_ARGS --test-level "$TEST_LEVEL"
+          else
+            echo "No Salesforce metadata changes found. Skipping deployment."
+          fi
