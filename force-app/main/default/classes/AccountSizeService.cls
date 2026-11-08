@@ -1,6 +1,8 @@
 /**
  * Example service that classifies Accounts by NumberOfEmployees and
- * writes the size segment into Description.
+ * writes the size segment into Description. Not new class
+ * test 
+ * change 
  */
 public with sharing class AccountSizeService {
 
