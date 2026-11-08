@@ -1,6 +1,6 @@
 /**
  * Example service that normalizes Contact emails (trim + lowercase)
- * and reports the email domain.
+ * and reports the email domain. nothing
  */
 public with sharing class ContactEmailService {
 
