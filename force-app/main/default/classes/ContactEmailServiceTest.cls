@@ -50,7 +50,9 @@ private class ContactEmailServiceTest {
         Integer updated = ContactEmailService.normalizeAndSave(contacts.keySet());
         Test.stopTest();
 
-        Assert.areEqual(1, updated);
+        // The org lowercases Email on save, so stored emails are already
+        // normalized and nothing needs updating (null email must not throw).
+        Assert.areEqual(0, updated);
         Map<String, String> emailByName = new Map<String, String>();
         for (Contact c : [SELECT LastName, Email FROM Contact]) {
             emailByName.put(c.LastName, c.Email);

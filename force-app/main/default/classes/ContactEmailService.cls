@@ -38,7 +38,11 @@ public with sharing class ContactEmailService {
         for (Contact c : contacts) {
             String normalized = normalize(c.Email);
             // Apex '!=' on Strings is case-insensitive; equals() is case-sensitive.
-            if (!String.valueOf(normalized).equals(String.valueOf(c.Email))) {
+            // Null-safe: both null means unchanged.
+            Boolean same = (normalized == null)
+                ? c.Email == null
+                : normalized.equals(c.Email);
+            if (!same) {
                 c.Email = normalized;
                 changed.add(c);
             }
