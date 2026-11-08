@@ -1,0 +1,21 @@
+name: Promotion Guard
+on:
+  pull_request:
+    branches: [develop, sit, uat, master]
+jobs:
+  promotion-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce develop -> sit -> uat -> master
+        env:
+          BASE: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+          SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        run: |
+          case "$BASE" in
+            sit) UP=develop ;; uat) UP=sit ;; master) UP=uat ;; *) echo "No promotion rule for $BASE"; exit 0 ;;
+          esac
+          if [ "$HEAD_REF" != "$UP" ] || [ "$SAME_REPO" != "true" ]; then
+            echo "::error::PRs into $BASE must come from $UP in this repo (got $HEAD_REF)"; exit 1
+          fi
+          echo "OK: $UP -> $BASE"
