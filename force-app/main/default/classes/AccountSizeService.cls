@@ -63,5 +63,3 @@ public with sharing class AccountSizeService {
     public class AccountSizeException extends Exception {}
 
 }
-
-
