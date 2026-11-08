@@ -34,7 +34,15 @@ private class OpportunityRollupServiceTest {
 
     @IsTest
     static void testRecalc() {
-        List<Account> accs = [SELECT Id FROM Account LIMIT 1];
-        OpportunityRollupService.recalc(new List<Id>{ accs[0].Id });
+        Account a = new Account(Name = 'Recalc Test');
+        insert a;
+        insert new Opportunity(Name = 'Recalc Opp', AccountId = a.Id, StageName = 'Prospecting', CloseDate = Date.today(), Amount = 250);
+
+        Test.startTest();
+        OpportunityRollupService.recalc(new List<Id>{ a.Id });
+        Test.stopTest();
+
+        Account result = [SELECT Description FROM Account WHERE Id = :a.Id];
+        Assert.areEqual('Total: 250.00', result.Description);
     }
 }
