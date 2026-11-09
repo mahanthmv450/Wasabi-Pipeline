@@ -433,8 +433,21 @@ def cmd_comment():
 
     sha = env("HEAD_SHA")
     from_sha = env("FROM_SHA")
+    def branch(name):
+        return f"`{md_escape(name.replace('`', ''))}`"
+
+    target_branch = env("TARGET_BRANCH")
+    source_branch = env("SOURCE_BRANCH")
+    if source_branch and target_branch:
+        branches = f"{branch(source_branch)} → {branch(target_branch)}"
+    elif target_branch:
+        branches = branch(target_branch)
+    else:
+        branches = "-"
+
     rows = [
         ("Status", status),
+        ("Branch", branches),
         ("Target org", f"`{env_name}`"),
         ("Operation", "Validate (check-only, nothing saved)" if operation == "Validate" else "Deploy"),
         ("Test level", f"`{env('TEST_LEVEL_USED', '-')}`"),

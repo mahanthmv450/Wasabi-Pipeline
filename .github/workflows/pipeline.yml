@@ -236,6 +236,7 @@ jobs:
         env: &report_env
           REPO: ${{ github.repository }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          TARGET_BRANCH: ${{ github.base_ref || github.ref_name }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           DEPLOY_EXIT_CODE: ${{ steps.sfdeploy.outputs.exit_code }}
           OUTCOME_CHECKOUT: ${{ steps.checkout.outcome }}
@@ -283,6 +284,26 @@ jobs:
           claude_args: |
             --max-turns 20
             --allowedTools "Read,Glob,Grep,Write"
+
+      # PR: the PR's head branch. Push: head branch of the PR that was merged
+      # to produce this commit (empty for a direct push).
+      - name: Resolve Source Branch
+        if: always() && steps.checkout.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_HEAD_BRANCH: ${{ github.head_ref }}
+          SHA: ${{ github.sha }}
+        run: |
+          if [ "$EVENT_NAME" == "pull_request" ]; then
+            SRC="$PR_HEAD_BRANCH"
+          else
+            SRC=$(gh api "repos/$REPO/commits/$SHA/pulls" --jq '.[0].head.ref // empty' 2>/dev/null || true)
+          fi
+          echo "SOURCE_BRANCH=$SRC" >> "$GITHUB_ENV"
+          echo "Source branch: ${SRC:-<direct push>}"
 
       - name: Build Comment
         if: always() && steps.checkout.outcome == 'success'
