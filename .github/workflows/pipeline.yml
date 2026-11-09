@@ -17,6 +17,14 @@
 #
 # REQUIRED SECRETS:
 # SALESFORCE_AUTH_URL_DEV / _SIT / _UAT / _PROD
+# CLAUDE_CODE_OAUTH_TOKEN  (optional: AI fix suggestions on failure)
+#
+# REPORTING:
+# Every run posts a results comment (components changed, status,
+# failure reason, Claude fix suggestions on failure):
+#   PR   → one comment on the PR, updated on each new push
+#   push → a comment on the deployed commit
+# Report logic lives in scripts/ci/pipeline_report.py
 # ================================================================
 
 name: Salesforce Delta Pipeline
@@ -26,11 +34,13 @@ on:
     branches: [develop, sit, uat, master]
     paths:
       - 'force-app/**'
+      - 'scripts/ci/**'
       - '.github/workflows/pipeline.yml'
   pull_request:
     branches: [develop, sit, uat, master]
     paths:
       - 'force-app/**'
+      - 'scripts/ci/**'
       - '.github/workflows/pipeline.yml'
 
 permissions:
@@ -84,23 +94,33 @@ jobs:
       group: sf-${{ needs.setup.outputs.env_name }}-${{ github.event_name }}
       cancel-in-progress: false
 
+    # contents: write is needed to comment on commits (push runs)
+    permissions:
+      contents: write
+      pull-requests: write
+
     env:
       ENV_NAME: ${{ needs.setup.outputs.env_name }}
       TEST_LEVEL: ${{ needs.setup.outputs.test_level }}
       VALIDATE_TEST_LEVEL: ${{ needs.setup.outputs.validate_test_level }}
+      OPERATION: ${{ github.event_name == 'pull_request' && 'Validate' || 'Deploy' }}
+      HAS_CLAUDE_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
 
     steps:
       - name: Checkout Full Git History
+        id: checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Install Salesforce CLI
+        id: install_cli
         run: |
           npm install --global "@salesforce/cli@${SF_CLI_VERSION}"
           sf --version
 
       - name: Install sfdx-git-delta
+        id: install_sgd
         run: |
           mkdir -p ~/.config/sf
           echo '["sfdx-git-delta"]' > ~/.config/sf/unsignedPluginAllowList.json
@@ -108,6 +128,7 @@ jobs:
           sf plugins
 
       - name: Authenticate to Salesforce (${{ env.ENV_NAME }})
+        id: auth
         env:
           AUTH_URL: ${{ secrets[format('SALESFORCE_AUTH_URL_{0}', needs.setup.outputs.env_name)] }}
         run: |
@@ -120,6 +141,7 @@ jobs:
             --sfdx-url-stdin
 
       - name: Determine Delta Range
+        id: delta_range
         env:
           EVENT_NAME: ${{ github.event_name }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -142,6 +164,7 @@ jobs:
           echo "Delta range: $FROM_SHA → $(git rev-parse HEAD)"
 
       - name: Generate Delta Package
+        id: delta
         run: |
           mkdir -p delta
           sf sgd source delta \
@@ -167,6 +190,7 @@ jobs:
           echo "HAS_DESTRUCTIVE=$HAS_DESTRUCTIVE" >> "$GITHUB_ENV"
 
       - name: Build Deploy Arguments
+        id: build_args
         run: |
           ARGS="--manifest delta/package/package.xml --target-org target-org --wait 120"
           if [ "$HAS_DESTRUCTIVE" == "true" ]; then
@@ -174,20 +198,149 @@ jobs:
           fi
           echo "DEPLOY_ARGS=$ARGS" >> "$GITHUB_ENV"
 
-      - name: Validate Delta (${{ env.ENV_NAME }})
-        if: github.event_name == 'pull_request'
+      # Validate on PR, deploy on push. Output is captured as JSON for the
+      # report; the job is failed at the end so reporting still runs.
+      - name: ${{ env.OPERATION }} Delta (${{ env.ENV_NAME }})
+        id: sfdeploy
+        env:
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ "$HAS_CHANGES" == "true" ] || [ "$HAS_DESTRUCTIVE" == "true" ]; then
-            sf project deploy validate $DEPLOY_ARGS --test-level "$VALIDATE_TEST_LEVEL"
+          mkdir -p pipeline-report
+          if [ "$EVENT_NAME" == "pull_request" ]; then
+            CMD=validate; LEVEL="$VALIDATE_TEST_LEVEL"
           else
-            echo "No Salesforce metadata changes found. Skipping validation."
+            CMD=start;    LEVEL="$TEST_LEVEL"
+          fi
+          echo "TEST_LEVEL_USED=$LEVEL" >> "$GITHUB_ENV"
+
+          if [ "$HAS_CHANGES" != "true" ] && [ "$HAS_DESTRUCTIVE" != "true" ]; then
+            echo "No Salesforce metadata changes found. Skipping."
+            echo "exit_code=0" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
 
-      - name: Deploy Delta to ${{ env.ENV_NAME }}
-        if: github.event_name == 'push'
+          echo "Running: sf project deploy $CMD (test level $LEVEL)…"
+          set +e
+          sf project deploy $CMD $DEPLOY_ARGS --test-level "$LEVEL" --json \
+            > pipeline-report/deploy-result.json
+          EXIT_CODE=$?
+          set -e
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+          echo "sf exited with $EXIT_CODE"
+
+      # ------------------------------------------------------------
+      # Reporting (runs on success and failure)
+      # ------------------------------------------------------------
+      - name: Analyze Result
+        if: always() && steps.checkout.outcome == 'success'
+        env: &report_env
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          TARGET_BRANCH: ${{ github.base_ref || github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          DEPLOY_EXIT_CODE: ${{ steps.sfdeploy.outputs.exit_code }}
+          OUTCOME_CHECKOUT: ${{ steps.checkout.outcome }}
+          OUTCOME_INSTALL_CLI: ${{ steps.install_cli.outcome }}
+          OUTCOME_INSTALL_SGD: ${{ steps.install_sgd.outcome }}
+          OUTCOME_AUTH: ${{ steps.auth.outcome }}
+          OUTCOME_DELTA_RANGE: ${{ steps.delta_range.outcome }}
+          OUTCOME_DELTA: ${{ steps.delta.outcome }}
+          OUTCOME_BUILD_ARGS: ${{ steps.build_args.outcome }}
+          OUTCOME_SFDEPLOY: ${{ steps.sfdeploy.outcome }}
+        run: python3 scripts/ci/pipeline_report.py analyze
+
+      # Only for real Salesforce failures (component / test / coverage errors)
+      - name: Claude Fix Suggestions
+        if: >
+          always() &&
+          steps.sfdeploy.outputs.exit_code != '' &&
+          steps.sfdeploy.outputs.exit_code != '0' &&
+          env.HAS_CLAUDE_TOKEN == 'true'
+        continue-on-error: true
+        timeout-minutes: 10
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          prompt: |
+            A Salesforce ${{ env.OPERATION }} to the ${{ env.ENV_NAME }} org failed.
+
+            1. Read pipeline-report/failure.md for the errors Salesforce returned.
+            2. Read the affected source under force-app/ (Apex classes, triggers,
+               test classes, LWC, flows, objects/fields) to find the root cause.
+               delta/package/package.xml lists every component in this change.
+            3. Write your answer to pipeline-report/claude-suggestions.md.
+               Do not create or modify any other file.
+
+            Format of claude-suggestions.md (GitHub Markdown, no top-level heading):
+            - One "#### <component or test name>" section per distinct root cause.
+            - **Cause:** one or two sentences, citing file path and line.
+            - **Fix:** concrete steps, with a short code snippet when it helps.
+            - For coverage failures, name the classes below 75% and the test
+              methods to add.
+            - For a missing dependency (field, object, class not in the org),
+              say which component must be added to the commit or deployed first.
+            Be concise and specific. No preamble, no closing summary.
+          claude_args: |
+            --max-turns 20
+            --allowedTools "Read,Glob,Grep,Write"
+
+      # PR: the PR's head branch. Push: head branch of the PR that was merged
+      # to produce this commit (empty for a direct push).
+      - name: Resolve Source Branch
+        if: always() && steps.checkout.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_HEAD_BRANCH: ${{ github.head_ref }}
+          SHA: ${{ github.sha }}
         run: |
-          if [ "$HAS_CHANGES" == "true" ] || [ "$HAS_DESTRUCTIVE" == "true" ]; then
-            sf project deploy start $DEPLOY_ARGS --test-level "$TEST_LEVEL"
+          if [ "$EVENT_NAME" == "pull_request" ]; then
+            SRC="$PR_HEAD_BRANCH"
           else
-            echo "No Salesforce metadata changes found. Skipping deployment."
+            SRC=$(gh api "repos/$REPO/commits/$SHA/pulls" --jq '.[0].head.ref // empty' 2>/dev/null || true)
           fi
+          echo "SOURCE_BRANCH=$SRC" >> "$GITHUB_ENV"
+          echo "Source branch: ${SRC:-<direct push>}"
+
+      - name: Build Comment
+        if: always() && steps.checkout.outcome == 'success'
+        env: *report_env
+        run: |
+          python3 scripts/ci/pipeline_report.py comment
+          cat pipeline-report/comment.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Post Comment
+        if: always() && steps.checkout.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.sha }}
+        run: |
+          [ -s pipeline-report/comment.md ] || { echo "No comment to post"; exit 0; }
+
+          if [ "$EVENT_NAME" == "pull_request" ]; then
+            # Update the existing report comment on this PR instead of adding a new one
+            EXISTING=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
+              --jq '.[] | select(.body | startswith("<!-- sf-pipeline-report -->")) | .id' | tail -n 1)
+            if [ -n "$EXISTING" ]; then
+              gh api -X PATCH "repos/$REPO/issues/comments/$EXISTING" -F body=@pipeline-report/comment.md > /dev/null
+              echo "Updated PR comment $EXISTING"
+            else
+              gh pr comment "$PR_NUMBER" --repo "$REPO" --body-file pipeline-report/comment.md
+            fi
+          else
+            gh api "repos/$REPO/commits/$SHA/comments" -F body=@pipeline-report/comment.md > /dev/null
+            echo "Commented on commit $SHA"
+          fi
+
+      - name: Fail Job If ${{ env.OPERATION }} Failed
+        if: always() && steps.sfdeploy.outputs.exit_code != '' && steps.sfdeploy.outputs.exit_code != '0'
+        run: |
+          echo "::error::Salesforce ${OPERATION,,} failed on $ENV_NAME. See the report above."
+          exit 1
